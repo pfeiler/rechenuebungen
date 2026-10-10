@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎈 Rechenübungen</title>
+<style>
+body{margin:0;font-family:"Comic Sans MS","Chalkboard SE","Comic Neue",cursive,sans-serif;background:linear-gradient(135deg,#ffd6e8,#c9f0ff,#fff3b0);min-height:100vh;color:#333}
+header{text-align:center;padding:16px}h1{color:#ff4f9a;font-size:2.2em;margin:8px 0;text-shadow:2px 2px #fff}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px}
+button.big{font:inherit;font-size:1.2em;border:none;border-radius:20px;padding:12px 22px;cursor:pointer;color:#fff;box-shadow:0 4px #0003}
+#neu{background:#3ec1d3}#fertig{background:#ff7a5a}
+#aufgaben{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;padding:14px;max-width:1100px;margin:auto}
+.card{background:#fff;border-radius:22px;padding:14px;box-shadow:0 4px 10px #0002;border:4px solid}
+.card .q{font-size:1.5em;font-weight:bold;margin-bottom:10px}
+.opts{display:flex;gap:8px}.opts button{flex:1;font:inherit;font-size:1.3em;padding:10px 0;border-radius:14px;border:3px solid #ddd;background:#fafafa;cursor:pointer}
+.opts button.sel{background:#ffe066;border-color:#f4a700}
+#ergebnis{max-width:800px;margin:10px auto 40px;padding:0 14px}
+.res{background:#fff;border-radius:22px;padding:16px;box-shadow:0 4px 10px #0002;margin-bottom:10px}
+.wrong{border-left:10px solid #ff5a5a}
+</style></head><body>
+<header><h1>🦄 Rechenübungen 🚀</h1><p>Plus ➕, Minus ➖, Mal ✖️ und Geteilt ➗ – wähle bei jeder Aufgabe die richtige Antwort!</p>
+<div class="btns"><button class="big" id="neu">🔄 Neue Aufgaben generieren</button><button class="big" id="fertig">🏁 Fertig</button></div></header>
+<div id="ergebnis"></div><div id="aufgaben"></div>
+<script>
+const COLORS=["#ff6fa5","#3ec1d3","#ffb703","#8ac926","#9b5de5","#ff7a5a"];
+const r=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=r(0,i);[a[i],a[j]]=[a[j],a[i]]}return a}
+function makeTask(){const op=r(0,3);let a,b,c,s;
+ if(op===0){a=r(1,99);b=r(1,100-a);c=a+b;s="+"}
+ else if(op===1){a=r(1,100);b=r(0,a);c=a-b;s="−"}
+ else if(op===2){a=r(1,10);b=r(1,Math.floor(100/a));if(Math.random()<.5)[a,b]=[b,a];c=a*b;s="·"}
+ else{b=r(1,10);c=r(1,Math.floor(100/b));a=b*c;s=":"}
+ const w=new Set();let t=0;
+ while(w.size<2&&t<100){t++;const d=[1,2,10,-1,-2,-10,b,-b,3,-3][r(0,9)];const x=c+d;if(x>=0&&x!==c)w.add(x)}
+ let k=c+1;while(w.size<2){if(k!==c)w.add(k);k++}
+ return{text:`${a} ${s} ${b} = ?`,c,opts:shuffle([c,...w]),ans:null}}
+let tasks=[];
+function neu(){tasks=Array.from({length:20},makeTask);document.getElementById("ergebnis").innerHTML="";render()}
+function render(){const box=document.getElementById("aufgaben");box.innerHTML="";
+ tasks.forEach((t,i)=>{const d=document.createElement("div");d.className="card";d.style.borderColor=COLORS[i%COLORS.length];
+  d.innerHTML=`<div class="q">${i+1}. ${t.text}</div>`;const o=document.createElement("div");o.className="opts";
+  t.opts.forEach(v=>{const b=document.createElement("button");b.textContent=v;if(t.ans===v)b.className="sel";
+   b.onclick=()=>{t.ans=v;render()};o.appendChild(b)});d.appendChild(o);box.appendChild(d)})}
+function fertig(){const f=tasks.map((t,i)=>({t,i})).filter(x=>x.t.ans!==x.t.c);const e=document.getElementById("ergebnis");
+ if(!f.length)e.innerHTML=`<div class="res">🎉🌟 Super! Alle 20 Aufgaben richtig! 🌟🎉</div>`;
+ else e.innerHTML=`<div class="res">📝 Diese Aufgaben waren noch nicht richtig (${f.length} von 20):</div>`+f.map(({t,i})=>
+  `<div class="res wrong"><b>${i+1}. ${t.text.replace("?","")}</b><br>Deine Antwort: ${t.ans===null?"nicht beantwortet":t.ans} ❌<br>Richtige Lösung: <b>${t.c}</b> ✅</div>`).join("");
+ e.scrollIntoView({behavior:"smooth"})}
+document.getElementById("neu").onclick=neu;document.getElementById("fertig").onclick=fertig;neu();
+</script></body></html>
