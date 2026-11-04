@@ -56,7 +56,7 @@ function fertig(){const f=tasks.map((t,i)=>({t,i})).filter(x=>x.t.ans!==x.t.c);c
  const info=!erstes?`<div class="res">ℹ️ Für diese Aufgaben gab es schon Minuten. Hol dir neue Aufgaben! 🔄</div>`:(neuMin>0?`<div class="res">⏱️ Du hast <b>${fmt(neuMin)} Minuten</b> Tablet-Zeit verdient! Insgesamt: <b>${fmt(minuten)} Minuten</b> 🎉</div>`:"");
  if(!f.length)e.innerHTML=info+`<div class="res">🎉🌟 Super! Alle 20 Aufgaben richtig! 🌟🎉</div>`;
  else e.innerHTML=info+`<div class="res">📝 Diese Aufgaben waren noch nicht richtig (${f.length} von 20):</div>`+f.map(({t,i})=>
-  `<div class="res wrong"><span class="nr">${i+1}</span><b>${t.text.replace("?","")}</b><br>Deine Antwort: ${t.ans===null?"nicht beantwortet":t.ans} ❌<br>Richtige Lösung: <b>${t.c}</b> ✅</div>`).join("");
+  `<div class="res wrong"><span class="nr">${i+1}</span><b>${t.text.replace("?","")}</b><br>Deine Antwort: ${t.ans===null?"nicht beantwortet":t.ans} ❌<br>Leider falsch – probier es nochmal! 💪</div>`).join("");
  e.scrollIntoView({behavior:"smooth"})}
 document.getElementById("einloesen").onclick=()=>{if(minuten>0&&confirm(`${fmt(minuten)} Minuten Tablet-Zeit einlösen? Danach startet das Konto wieder bei 0.`)){minuten=0;localStorage.setItem(KEY,0);zeigeMinuten()}};zeigeMinuten();
 document.getElementById("neu").onclick=neu;document.getElementById("fertig").onclick=fertig;neu();
