@@ -24,7 +24,7 @@ button.big{font:inherit;font-size:1.2em;border:none;border-radius:20px;padding:1
 </style></head><body>
 <header><h1>🦄 Rechenübungen 🚀</h1><p>Plus ➕, Minus ➖, Mal ✖️ und Geteilt ➗ – wähle bei jeder Aufgabe die richtige Antwort!</p>
 <div id="konto">📱 Tablet-Zeit: <span id="minuten">0</span> Minuten <button id="einloesen">🔓 Einlösen</button></div>
-<p class="legende">Jede richtige Aufgabe bringt Minuten: ➕➖ bis 20 = ½ Min · ➕➖ bis 100 = 1 Min · ✖️ = 3 Min · ➗ = 3 Min</p>
+<p class="legende">Jede richtige Aufgabe bringt Minuten: ➕➖ bis 20 = ½ Min · ➕➖ bis 100 = 1 Min <br>✖️➗ mit 1, 2, 5 oder 10 = 1 Min · ✖️➗ bis 50 = 2 Min · ✖️➗ über 50 = 3 Min</p>
 <div class="btns"><button class="big" id="neu">🔄 Neue Aufgaben generieren</button><button class="big" id="fertig">🏁 Fertig</button></div></header>
 <div id="ergebnis"></div><div id="aufgaben"></div>
 <script>
@@ -39,7 +39,7 @@ function makeTask(){const op=r(0,3);let a,b,c,s;
  const w=new Set();let t=0;
  while(w.size<2&&t<100){t++;const d=[1,2,10,-1,-2,-10,b,-b,3,-3][r(0,9)];const x=c+d;if(x>=0&&x!==c)w.add(x)}
  let k=c+1;while(w.size<2){if(k!==c)w.add(k);k++}
- const m=op>=2?3:(Math.max(a,b,c)<=20?0.5:1);
+ let m;if(op<2)m=Math.max(a,b,c)<=20?0.5:1;else{const f=op===2?[a,b]:[b,c],gross=op===2?c:a;m=f.some(x=>[1,2,5,10].includes(x))?1:(gross<=50?2:3)}
  return{text:`${a} ${s} ${b} = ?`,c,opts:shuffle([c,...w]),ans:null,m}}
 const KEY="tabletMinuten";let minuten=+(localStorage.getItem(KEY)||0);let gewertet=false;
 const fmt=n=>String(Math.round(n*2)/2).replace(".",",");
