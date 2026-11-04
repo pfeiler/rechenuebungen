@@ -17,8 +17,14 @@ button.big{font:inherit;font-size:1.2em;border:none;border-radius:20px;padding:1
 #ergebnis{max-width:800px;margin:10px auto 40px;padding:0 14px}
 .res{background:#fff;border-radius:22px;padding:16px;box-shadow:0 4px 10px #0002;margin-bottom:10px}
 .wrong{border-left:10px solid #ff5a5a}
+#konto{display:inline-block;background:#fff;border:4px solid #8ac926;border-radius:22px;padding:8px 18px;font-size:1.4em;font-weight:bold;color:#2b8a3e;box-shadow:0 4px 10px #0002;margin:6px}
+#einloesen{font:inherit;font-size:.9em;border:none;border-radius:14px;padding:6px 12px;margin-left:8px;background:#9b5de5;color:#fff;cursor:pointer}
+.min{margin-top:8px;font-size:.95em;color:#2b8a3e;font-weight:bold}
+.legende{font-size:.95em}
 </style></head><body>
 <header><h1>🦄 Rechenübungen 🚀</h1><p>Plus ➕, Minus ➖, Mal ✖️ und Geteilt ➗ – wähle bei jeder Aufgabe die richtige Antwort!</p>
+<div id="konto">📱 Tablet-Zeit: <span id="minuten">0</span> Minuten <button id="einloesen">🔓 Einlösen</button></div>
+<p class="legende">Jede richtige Aufgabe bringt Minuten: ➕➖ bis 20 = 1 Min · ➕➖ bis 100 = 2 Min · ✖️ = 3 Min · ➗ = 3 Min</p>
 <div class="btns"><button class="big" id="neu">🔄 Neue Aufgaben generieren</button><button class="big" id="fertig">🏁 Fertig</button></div></header>
 <div id="ergebnis"></div><div id="aufgaben"></div>
 <script>
@@ -33,18 +39,24 @@ function makeTask(){const op=r(0,3);let a,b,c,s;
  const w=new Set();let t=0;
  while(w.size<2&&t<100){t++;const d=[1,2,10,-1,-2,-10,b,-b,3,-3][r(0,9)];const x=c+d;if(x>=0&&x!==c)w.add(x)}
  let k=c+1;while(w.size<2){if(k!==c)w.add(k);k++}
- return{text:`${a} ${s} ${b} = ?`,c,opts:shuffle([c,...w]),ans:null}}
+ const m=op>=2?3:(Math.max(a,b,c)<=20?1:2);
+ return{text:`${a} ${s} ${b} = ?`,c,opts:shuffle([c,...w]),ans:null,m}}
+const KEY="tabletMinuten";let minuten=+(localStorage.getItem(KEY)||0);let gewertet=false;
+function zeigeMinuten(){document.getElementById("minuten").textContent=minuten}
 let tasks=[];
-function neu(){tasks=Array.from({length:20},makeTask);document.getElementById("ergebnis").innerHTML="";render()}
+function neu(){tasks=Array.from({length:20},makeTask);gewertet=false;document.getElementById("ergebnis").innerHTML="";render()}
 function render(){const box=document.getElementById("aufgaben");box.innerHTML="";
  tasks.forEach((t,i)=>{const d=document.createElement("div");d.className="card";d.style.borderColor=COLORS[i%COLORS.length];
   d.innerHTML=`<span class="nr">${i+1}</span><div class="q">${t.text}</div>`;const o=document.createElement("div");o.className="opts";
   t.opts.forEach(v=>{const b=document.createElement("button");b.textContent=v;if(t.ans===v)b.className="sel";
-   b.onclick=()=>{t.ans=v;render()};o.appendChild(b)});d.appendChild(o);box.appendChild(d)})}
+   b.onclick=()=>{t.ans=v;render()};o.appendChild(b)});d.appendChild(o);const mm=document.createElement("div");mm.className="min";mm.textContent=`⏱️ ${t.m} Min`;d.appendChild(mm);box.appendChild(d)})}
 function fertig(){const f=tasks.map((t,i)=>({t,i})).filter(x=>x.t.ans!==x.t.c);const e=document.getElementById("ergebnis");
- if(!f.length)e.innerHTML=`<div class="res">🎉🌟 Super! Alle 20 Aufgaben richtig! 🌟🎉</div>`;
- else e.innerHTML=`<div class="res">📝 Diese Aufgaben waren noch nicht richtig (${f.length} von 20):</div>`+f.map(({t,i})=>
+ let neuMin=0;const erstes=!gewertet;if(!gewertet){neuMin=tasks.filter(t=>t.ans===t.c).reduce((x,t)=>x+t.m,0);minuten+=neuMin;localStorage.setItem(KEY,minuten);zeigeMinuten();gewertet=true}
+ const info=!erstes?`<div class="res">ℹ️ Für diese Aufgaben gab es schon Minuten. Hol dir neue Aufgaben! 🔄</div>`:(neuMin>0?`<div class="res">⏱️ Du hast <b>${neuMin} Minuten</b> Tablet-Zeit verdient! Insgesamt: <b>${minuten} Minuten</b> 🎉</div>`:"");
+ if(!f.length)e.innerHTML=info+`<div class="res">🎉🌟 Super! Alle 20 Aufgaben richtig! 🌟🎉</div>`;
+ else e.innerHTML=info+`<div class="res">📝 Diese Aufgaben waren noch nicht richtig (${f.length} von 20):</div>`+f.map(({t,i})=>
   `<div class="res wrong"><span class="nr">${i+1}</span><b>${t.text.replace("?","")}</b><br>Deine Antwort: ${t.ans===null?"nicht beantwortet":t.ans} ❌<br>Richtige Lösung: <b>${t.c}</b> ✅</div>`).join("");
  e.scrollIntoView({behavior:"smooth"})}
+document.getElementById("einloesen").onclick=()=>{if(minuten>0&&confirm(`${minuten} Minuten Tablet-Zeit einlösen? Danach startet das Konto wieder bei 0.`)){minuten=0;localStorage.setItem(KEY,0);zeigeMinuten()}};zeigeMinuten();
 document.getElementById("neu").onclick=neu;document.getElementById("fertig").onclick=fertig;neu();
 </script></body></html>
