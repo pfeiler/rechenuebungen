@@ -1,63 +1,282 @@
 <!DOCTYPE html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
 <title>🎈 Rechenübungen</title>
 <style>
 body{margin:0;font-family:"Comic Sans MS","Chalkboard SE","Comic Neue",cursive,sans-serif;background:linear-gradient(135deg,#ffd6e8,#c9f0ff,#fff3b0);min-height:100vh;color:#333}
+button,input{touch-action:manipulation}
 header{text-align:center;padding:16px}h1{color:#ff4f9a;font-size:2.2em;margin:8px 0;text-shadow:2px 2px #fff}
 .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px}
-button.big{font:inherit;font-size:1.2em;border:none;border-radius:20px;padding:12px 22px;cursor:pointer;color:#fff;box-shadow:0 4px #0003}
+button.big{font:inherit;font-size:1.2em;border:none;border-radius:20px;padding:12px 22px;cursor:pointer;color:#fff;box-shadow:0 4px #0003;min-height:48px}
 #neu{background:#3ec1d3}#fertig{background:#ff7a5a}
-#aufgaben{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;padding:14px;max-width:1100px;margin:auto}
+#aufgaben{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:14px;padding:14px;max-width:1100px;margin:auto}
 .card{position:relative;background:#fff;border-radius:22px;padding:14px;box-shadow:0 4px 10px #0002;border:4px solid}
 .card .q{font-size:1.5em;font-weight:bold;margin-bottom:10px;padding-right:46px}
 .nr{position:absolute;top:10px;right:10px;min-width:28px;padding:2px 6px;border-radius:8px;background:#5a4fcf;color:#fff;font-size:.85em;font-weight:bold;text-align:center;font-family:Arial,sans-serif}
-.res{position:relative}
-.opts{display:flex;gap:8px}.opts button{flex:1;font:inherit;font-size:1.3em;padding:10px 0;border-radius:14px;border:3px solid #ddd;background:#fafafa;cursor:pointer}
-.opts button.sel{background:#ffe066;border-color:#f4a700}
+.answer{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.answer input{flex:1 1 8em;min-width:0;box-sizing:border-box;min-height:48px;font:inherit;font-size:1.3em;padding:10px 12px;border-radius:14px;border:3px solid #ddd;background:#fff;color:#333}
+.answer input::placeholder{color:#b0b0b0}
+.answer input:focus{outline:3px solid #3ec1d3;border-color:#3ec1d3}
+.answer button{flex:0 0 auto;box-sizing:border-box;min-height:48px;font:inherit;font-size:1.05em;padding:10px 14px;border-radius:14px;border:none;background:#3ec1d3;color:#fff;cursor:pointer;box-shadow:0 3px #0002;white-space:nowrap}
+.answer button:active{transform:translateY(1px)}
+.card.ok{background:#e8fadf}
+.card.bad{background:#ffe4e4}
+.card.ok .answer input{border-color:#8ac926}
+.card.bad .answer input{border-color:#ff5a5a}
+.fb{margin-top:8px;min-height:1.4em;font-weight:bold}
+.fb.ok{color:#2b8a3e}
+.fb.bad{color:#c1121f}
 #ergebnis{max-width:800px;margin:10px auto 40px;padding:0 14px}
-.res{background:#fff;border-radius:22px;padding:16px;box-shadow:0 4px 10px #0002;margin-bottom:10px}
+.res{position:relative;background:#fff;border-radius:22px;padding:16px;box-shadow:0 4px 10px #0002;margin-bottom:10px}
+.res.wrong{padding-right:52px}
 .wrong{border-left:10px solid #ff5a5a}
-#konto{display:inline-block;background:#fff;border:4px solid #8ac926;border-radius:22px;padding:8px 18px;font-size:1.4em;font-weight:bold;color:#2b8a3e;box-shadow:0 4px 10px #0002;margin:6px}
-#einloesen{font:inherit;font-size:.9em;border:none;border-radius:14px;padding:6px 12px;margin-left:8px;background:#9b5de5;color:#fff;cursor:pointer}
+#konto{display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;background:#fff;border:4px solid #8ac926;border-radius:22px;padding:8px 18px;font-size:1.4em;font-weight:bold;color:#2b8a3e;box-shadow:0 4px 10px #0002;margin:6px;max-width:calc(100% - 24px)}
+#konto.voll{border-color:#f4a700}
+#einloesen{font:inherit;font-size:.9em;border:none;border-radius:14px;padding:8px 12px;background:#9b5de5;color:#fff;cursor:pointer;min-height:44px}
 .min{margin-top:8px;font-size:.95em;color:#2b8a3e;font-weight:bold}
 .legende{font-size:.95em}
 </style></head><body>
-<header><h1>🦄 Rechenübungen 🚀</h1><p>Plus ➕, Minus ➖, Mal ✖️ und Geteilt ➗ – wähle bei jeder Aufgabe die richtige Antwort!</p>
-<div id="konto">📱 Tablet-Zeit: <span id="minuten">0</span> Minuten <button id="einloesen">🔓 Einlösen</button></div>
-<p class="legende">Jede richtige Aufgabe bringt Minuten: ➕➖ bis 100 = 1 Min · ➕➖ bis 1000 = ½ Min <br>✖️➗ mit 1, 2, 5 oder 10 = 1 Min · ✖️➗ bis 50 = 2 Min · ✖️➗ über 50 = 3 Min</p>
-<div class="btns"><button class="big" id="neu">🔄 Neue Aufgaben generieren</button><button class="big" id="fertig">🏁 Fertig</button></div></header>
+<header><h1>🦄 Rechenübungen 🚀</h1><p>Plus ➕, Minus ➖, Mal ✖️ und Geteilt ➗ – tippe das Ergebnis ein und drücke Enter oder Prüfen!</p>
+<div id="konto">📱 Tablet-Zeit: <span id="minuten">0</span> von 40 Minuten<span id="voll"></span> <button type="button" id="einloesen">🔓 Einlösen</button></div>
+<p class="legende">Jede richtige Aufgabe bringt Minuten: ➕➖ bis 100 = 1 Min · ➕➖ bis 1000 = ½ Min <br>✖️➗ mit 1, 2, 5 oder 10 = 1 Min · ✖️➗ bis 50 = 2 Min · ✖️➗ über 50 = 3 Min<br>Gespeichert werden höchstens 40 Minuten.</p>
+<div class="btns"><button type="button" class="big" id="neu">🔄 Neue Aufgaben generieren</button><button type="button" class="big" id="fertig">🏁 Fertig</button></div></header>
 <div id="ergebnis"></div><div id="aufgaben"></div>
 <script>
 const COLORS=["#ff6fa5","#3ec1d3","#ffb703","#8ac926","#9b5de5","#ff7a5a"];
+const KEY="tabletMinuten";
+const MAX_MINUTEN=40;
 const r=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=r(0,i);[a[i],a[j]]=[a[j],a[i]]}return a}
-function makeTask(){const op=r(0,3);let a,b,c,s;
- if(op===0){s="+";if(Math.random()<.6){a=r(10,90);b=r(10,100-a)}else{do{a=r(100,900);b=Math.random()<.5?r(1,9)*100:r(1,9)*10}while(a+b>1000)}c=a+b}
- else if(op===1){s="−";if(Math.random()<.6){a=r(20,100);b=r(10,a-10)}else{do{a=r(110,1000);b=Math.random()<.5?r(1,9)*100:r(1,9)*10}while(a-b<10)}c=a-b}
- else if(op===2){a=r(1,10);b=r(1,Math.floor(100/a));if(Math.random()<.5)[a,b]=[b,a];c=a*b;s="·"}
- else{b=r(1,10);c=r(1,Math.floor(100/b));a=b*c;s=":"}
- const w=new Set();let t=0;
- while(w.size<2&&t<100){t++;const d=[1,2,10,-1,-2,-10,b,-b,3,-3][r(0,9)];const x=c+d;if(x>=0&&x!==c)w.add(x)}
- let k=c+1;while(w.size<2){if(k!==c)w.add(k);k++}
- let m;if(op<2)m=Math.max(a,b,c)>100?0.5:1;else{const f=op===2?[a,b]:[b,c],gross=op===2?c:a;m=f.some(x=>[1,2,5,10].includes(x))?1:(gross<=50?2:3)}
- return{text:`${a} ${s} ${b} = ?`,c,opts:shuffle([c,...w]),ans:null,m}}
-const KEY="tabletMinuten";let minuten=+(localStorage.getItem(KEY)||0);let gewertet=false;
-const fmt=n=>String(Math.round(n*2)/2).replace(".",",");
-function zeigeMinuten(){document.getElementById("minuten").textContent=fmt(minuten)}
+let minuten=0;
 let tasks=[];
-function neu(){tasks=Array.from({length:20},makeTask);gewertet=false;document.getElementById("ergebnis").innerHTML="";render()}
-function render(){const box=document.getElementById("aufgaben");box.innerHTML="";
- tasks.forEach((t,i)=>{const d=document.createElement("div");d.className="card";d.style.borderColor=COLORS[i%COLORS.length];
-  d.innerHTML=`<span class="nr">${i+1}</span><div class="q">${t.text}</div>`;const o=document.createElement("div");o.className="opts";
-  t.opts.forEach(v=>{const b=document.createElement("button");b.textContent=v;if(t.ans===v)b.className="sel";
-   b.onclick=()=>{t.ans=v;render()};o.appendChild(b)});d.appendChild(o);const mm=document.createElement("div");mm.className="min";mm.textContent=`⏱️ ${t.m===0.5?"½":t.m} Min`;d.appendChild(mm);box.appendChild(d)})}
-function fertig(){const f=tasks.map((t,i)=>({t,i})).filter(x=>x.t.ans!==x.t.c);const e=document.getElementById("ergebnis");
- let neuMin=0;const erstes=!gewertet;if(!gewertet){neuMin=tasks.filter(t=>t.ans===t.c).reduce((x,t)=>x+t.m,0);minuten+=neuMin;localStorage.setItem(KEY,minuten);zeigeMinuten();gewertet=true}
- const info=!erstes?`<div class="res">ℹ️ Für diese Aufgaben gab es schon Minuten. Hol dir neue Aufgaben! 🔄</div>`:(neuMin>0?`<div class="res">⏱️ Du hast <b>${fmt(neuMin)} Minuten</b> Tablet-Zeit verdient! Insgesamt: <b>${fmt(minuten)} Minuten</b> 🎉</div>`:"");
- if(!f.length)e.innerHTML=info+`<div class="res">🎉🌟 Super! Alle 20 Aufgaben richtig! 🌟🎉</div>`;
- else e.innerHTML=info+`<div class="res">📝 Diese Aufgaben waren noch nicht richtig (${f.length} von 20):</div>`+f.map(({t,i})=>
-  `<div class="res wrong"><span class="nr">${i+1}</span><b>${t.text.replace("?","")}</b><br>Deine Antwort: ${t.ans===null?"nicht beantwortet":t.ans} ❌<br>Leider falsch – probier es nochmal! 💪</div>`).join("");
- e.scrollIntoView({behavior:"smooth"})}
-document.getElementById("einloesen").onclick=()=>{if(minuten>0&&confirm(`${fmt(minuten)} Minuten Tablet-Zeit einlösen? Danach startet das Konto wieder bei 0.`)){minuten=0;localStorage.setItem(KEY,0);zeigeMinuten()}};zeigeMinuten();
-document.getElementById("neu").onclick=neu;document.getElementById("fertig").onclick=fertig;neu();
+let gewertet=false;
+
+function fmt(n){return String(Math.round(n*2)/2).replace(".",",")}
+function esc(s){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]))}
+function aufgabeText(t){return String(t.text).replace("?","").trim()}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,String(v))}catch(e){}}
+function clampMinuten(n){
+  if(typeof n==="string")n=n.trim().replace(",",".");
+  n=+n;
+  if(!isFinite(n)||n<0)return 0;
+  return n>MAX_MINUTEN?MAX_MINUTEN:n;
+}
+function gleicheZahl(raw,n){
+  if(typeof raw==="string")raw=raw.trim().replace(",",".");
+  const p=+raw;
+  return isFinite(p)&&p===n;
+}
+function zeigeMinuten(){
+  document.getElementById("minuten").textContent=fmt(minuten);
+  const voll=document.getElementById("voll");
+  if(voll)voll.textContent=minuten>=MAX_MINUTEN?" (voll)":"";
+  const konto=document.getElementById("konto");
+  if(konto)konto.classList.toggle("voll",minuten>=MAX_MINUTEN);
+}
+function speichereMinuten(){
+  minuten=clampMinuten(minuten);
+  lsSet(KEY,minuten);
+  zeigeMinuten();
+}
+function ladeMinuten(){
+  const raw=lsGet(KEY);
+  minuten=clampMinuten(raw==null?0:raw);
+  if(raw!=null&&!gleicheZahl(raw,minuten))speichereMinuten();
+  else zeigeMinuten();
+}
+
+// Mal mit 1 und Geteilt durch 1 (auch * / × ÷) sind keine Aufgaben.
+function textMitEins(text){
+  const m=String(text).match(/^(\d+)\s*([^\d\s]+)\s*(\d+)/);
+  if(!m)return false;
+  const links=+m[1],sym=m[2],rechts=+m[3];
+  const mal=new Set(["·","*","x","X","×","⋅","✕"]);
+  const geteilt=new Set([":","/","÷","∕"]);
+  if(mal.has(sym))return links===1||rechts===1;
+  if(geteilt.has(sym))return rechts===1;
+  return false;
+}
+function istTrivial(op,a,b,text){
+  if(op===2&&(a===1||b===1))return true;
+  if(op===3&&b===1)return true;
+  return textMitEins(text);
+}
+function buildTask(){
+  const op=r(0,3);let a,b,c,s;
+  if(op===0){s="+";if(Math.random()<.6){a=r(10,90);b=r(10,100-a)}else{do{a=r(100,900);b=Math.random()<.5?r(1,9)*100:r(1,9)*10}while(a+b>1000)}c=a+b}
+  else if(op===1){s="−";if(Math.random()<.6){a=r(20,100);b=r(10,a-10)}else{do{a=r(110,1000);b=Math.random()<.5?r(1,9)*100:r(1,9)*10}while(a-b<10)}c=a-b}
+  else if(op===2){a=r(1,10);b=r(1,Math.floor(100/a));if(Math.random()<.5)[a,b]=[b,a];c=a*b;s="·"}
+  else{b=r(1,10);c=r(1,Math.floor(100/b));a=b*c;s=":"}
+  let m;if(op<2)m=Math.max(a,b,c)>100?0.5:1;else{const f=op===2?[a,b]:[b,c],gross=op===2?c:a;m=f.some(x=>[1,2,5,10].includes(x))?1:(gross<=50?2:3)}
+  return{op,a,b,text:`${a} ${s} ${b} = ?`,c,m};
+}
+function makeTask(){
+  for(let versuch=0;versuch<300;versuch++){
+    const t=buildTask();
+    if(istTrivial(t.op,t.a,t.b,t.text))continue;
+    return{text:t.text,c:t.c,ans:null,m:t.m};
+  }
+  return{text:"2 · 3 = ?",c:6,ans:null,m:1};
+}
+function parseAntwort(raw){
+  if(!/^\d+$/.test(raw))return null;
+  const n=Number(raw);
+  if(!Number.isSafeInteger(n))return null;
+  return n;
+}
+function karte(i){return document.getElementById("aufgaben").children[i]}
+// Falsche Lösungen nicht verraten.
+function pruefe(i){
+  const t=tasks[i];
+  const card=karte(i);
+  const inp=card.querySelector("input");
+  const fb=card.querySelector(".fb");
+  const raw=inp.value.trim();
+  t.raw=raw;
+  t.ans=parseAntwort(raw);
+  card.classList.remove("ok","bad");
+  inp.removeAttribute("aria-invalid");
+  if(raw===""){
+    fb.className="fb bad";
+    fb.textContent="Bitte gib eine Zahl ein.";
+    card.classList.add("bad");
+    inp.setAttribute("aria-invalid","true");
+    return false;
+  }
+  if(t.ans===null){
+    fb.className="fb bad";
+    fb.textContent="Bitte gib eine ganze Zahl ein.";
+    card.classList.add("bad");
+    inp.setAttribute("aria-invalid","true");
+    return false;
+  }
+  if(t.ans===t.c){
+    fb.className="fb ok";
+    fb.textContent="Richtig! 🌟";
+    card.classList.add("ok");
+    inp.setAttribute("aria-invalid","false");
+    return true;
+  }
+  fb.className="fb bad";
+  fb.textContent="Leider falsch – probier es nochmal! 💪";
+  card.classList.add("bad");
+  inp.setAttribute("aria-invalid","true");
+  return false;
+}
+function fokusNaechste(i){
+  const inputs=document.querySelectorAll("#aufgaben input");
+  for(let j=i+1;j<inputs.length;j++){
+    if(tasks[j].ans!==tasks[j].c){inputs[j].focus();inputs[j].select();return}
+  }
+}
+function render(){
+  const box=document.getElementById("aufgaben");
+  box.replaceChildren();
+  tasks.forEach((t,i)=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.borderColor=COLORS[i%COLORS.length];
+    const nr=document.createElement("span");
+    nr.className="nr";
+    nr.textContent=String(i+1);
+    const q=document.createElement("div");
+    q.className="q";
+    q.textContent=aufgabeText(t);
+    const row=document.createElement("div");
+    row.className="answer";
+    const inp=document.createElement("input");
+    inp.type="text";
+    inp.inputMode="numeric";
+    inp.pattern="[0-9]*";
+    inp.enterKeyHint="done";
+    inp.autocomplete="off";
+    inp.spellcheck=false;
+    inp.setAttribute("autocorrect","off");
+    inp.setAttribute("autocapitalize","none");
+    inp.setAttribute("aria-label","Antwort für Aufgabe "+(i+1));
+    inp.placeholder="Antwort";
+    if(t.raw)inp.value=t.raw;
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.textContent="Prüfen";
+    const fb=document.createElement("div");
+    fb.className="fb";
+    fb.setAttribute("aria-live","polite");
+    const mm=document.createElement("div");
+    mm.className="min";
+    mm.textContent="⏱️ "+(t.m===0.5?"½":t.m)+" Min";
+    function weiter(){
+      const ok=pruefe(i);
+      if(ok)fokusNaechste(i);
+      else{inp.focus();inp.select()}
+    }
+    btn.addEventListener("click",weiter);
+    inp.addEventListener("keydown",ev=>{
+      if(ev.key==="Enter"||ev.key==="NumpadEnter"||ev.code==="NumpadEnter"||ev.keyCode===13){
+        ev.preventDefault();
+        weiter();
+      }
+    });
+    inp.addEventListener("input",()=>{
+      t.raw=inp.value;
+      t.ans=null;
+      card.classList.remove("ok","bad");
+      fb.textContent="";
+      fb.className="fb";
+      inp.removeAttribute("aria-invalid");
+    });
+    inp.addEventListener("focus",()=>{
+      const coarse=window.matchMedia&&window.matchMedia("(pointer: coarse)").matches;
+      setTimeout(()=>{inp.scrollIntoView({block:coarse?"center":"nearest",behavior:"smooth"})},coarse?300:0);
+    });
+    row.append(inp,btn);
+    card.append(nr,q,row,fb,mm);
+    box.appendChild(card);
+  });
+}
+function neu(){
+  tasks=Array.from({length:20},makeTask);
+  gewertet=false;
+  document.getElementById("ergebnis").innerHTML="";
+  render();
+}
+function minutenHinweis(erstes,verdient,gutgeschrieben){
+  if(!erstes)return `<div class="res">ℹ️ Für diese Aufgaben gab es schon Minuten. Hol dir neue Aufgaben! 🔄</div>`;
+  if(verdient<=0)return "";
+  if(gutgeschrieben===verdient)return `<div class="res">⏱️ Du hast <b>${fmt(verdient)} Minuten</b> Tablet-Zeit verdient! Insgesamt: <b>${fmt(minuten)} Minuten</b> 🎉</div>`;
+  if(gutgeschrieben<=0)return `<div class="res">⏱️ Du hättest <b>${fmt(verdient)} Minuten</b> verdient. Es sind schon 40 Minuten gespeichert. Löse sie ein, dann kannst du wieder welche sammeln. 📱</div>`;
+  return `<div class="res">⏱️ Du hast <b>${fmt(verdient)} Minuten</b> verdient. Das Konto speichert höchstens 40 Minuten, deshalb sind <b>${fmt(gutgeschrieben)} Minuten</b> dazugekommen. Insgesamt: <b>${fmt(minuten)} Minuten</b> 🎉</div>`;
+}
+function fertig(){
+  tasks.forEach((_,i)=>pruefe(i));
+  const falsch=tasks.map((t,i)=>({t,i})).filter(x=>x.t.ans!==x.t.c);
+  const e=document.getElementById("ergebnis");
+  const erstes=!gewertet;
+  let verdient=0,gutgeschrieben=0;
+  if(erstes){
+    verdient=Math.round(tasks.filter(t=>t.ans===t.c).reduce((s,t)=>s+t.m,0)*2)/2;
+    const davor=minuten;
+    minuten=davor+verdient;
+    speichereMinuten();
+    gutgeschrieben=Math.round((minuten-davor)*2)/2;
+    gewertet=true;
+  }
+  const info=minutenHinweis(erstes,verdient,gutgeschrieben);
+  if(!falsch.length)e.innerHTML=info+`<div class="res">🎉🌟 Super! Alle 20 Aufgaben richtig! 🌟🎉</div>`;
+  else e.innerHTML=info+`<div class="res">📝 Diese Aufgaben waren noch nicht richtig (${falsch.length} von 20):</div>`+falsch.map(({t,i})=>{
+    const antwort=t.raw?esc(t.raw):"nicht beantwortet";
+    return `<div class="res wrong"><span class="nr">${i+1}</span><b>${esc(aufgabeText(t))}</b><br>Deine Antwort: ${antwort} ❌<br>Leider falsch – probier es nochmal! 💪</div>`;
+  }).join("");
+  e.scrollIntoView({behavior:"smooth"});
+}
+function einloesen(){
+  if(minuten>0&&confirm(fmt(minuten)+" Minuten Tablet-Zeit einlösen? Danach startet das Konto wieder bei 0.")){
+    minuten=0;
+    speichereMinuten();
+  }
+}
+ladeMinuten();
+document.getElementById("neu").onclick=neu;
+document.getElementById("fertig").onclick=fertig;
+document.getElementById("einloesen").onclick=einloesen;
+neu();
 </script></body></html>
